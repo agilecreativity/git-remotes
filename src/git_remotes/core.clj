@@ -81,8 +81,8 @@
            (spit output-file (git-command dir url) :append true))))
      (println "Your output file : " (str (expand-home output-file))))))
 
-#_ (clone-repos (extract-git-urls "~/apps"))
-#_ (clone-repos (extract-git-urls "~/projects/personal") "sample.sh")
+#_(clone-repos (extract-git-urls "~/apps"))
+#_(clone-repos (extract-git-urls "~/projects/personal") "sample.sh")
 
 (defn -main [& args]
   (let [{:keys [options arguments errors summary]}

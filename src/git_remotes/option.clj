@@ -8,17 +8,18 @@
    ["-h" "--help"]])
 
 (defn usage [summary]
-  (->> ["Extract git URL recursively from a given directory"
-        ""
-        "Usage: git-remotes [options]"
-        summary
-        ""
-        "Options:"
-        ""
-        "--base-dir     DIR   path to the base directory, default to current directory."
-        "--output-file  FILE  output file for command, default to 'git-command.sh'"
-        "--verbose            print the output to the screen as well as output to file."]
-       (str/join \newline)))
+  (str/join
+   \newline
+   ["Extract git URL recursively from a given directory"
+    ""
+    "Usage: git-remotes [options]"
+    summary
+    ""
+    "Options:"
+    ""
+    "--base-dir     DIR   path to the base directory, default to current directory."
+    "--output-file  FILE  output file for command, default to 'git-command.sh'"
+    "--verbose            print the output to the screen as well as output to file."]))
 
 (defn error-message [errors]
   (str "The following error occured while parsing your commands: \n\n"
