@@ -53,6 +53,52 @@
   (let [configs (git-config base-dir)]
     (map url-pairs configs)))
 
+(defn- custom-url
+  "Extract url having specific pattern.
+
+  (custom-url \"git@github.com:agilecreativity/borkdude--jet.git\")
+  ;;=> {:owner \"borkdude\" :repo \"jet\"}
+
+  (custom-url \"git@github.com:agilecreativity/jet.git\")
+  ;;=> nil"
+  [full-url]
+  (let [url (clojure.string/replace
+             (subs full-url (+ 1 (clojure.string/last-index-of full-url "/")))
+             ".git"
+             "")]
+    (if-let [[[_ owner repo]] (re-seq #"(\w+)--(\w+)" url)]
+      {:owner owner
+       :repo repo})))
+
+(defn custom-projects
+  [base-dir]
+  (let [url-pairs (extract-git-urls base-dir)
+        single-remote-fn (fn [x] (= 1 (count (last x))))
+        custom-remote-fn (fn [x] (custom-url (last (last (first (last x))))))
+        custom-output-fn (fn [x]
+                           {(first x)
+                            (custom-remote-fn x)})]
+    (->> url-pairs
+         (filter single-remote-fn)
+         (filter custom-remote-fn)
+         (map custom-output-fn))))
+
+(comment
+
+  (def apps (custom-projects "~/apps"))
+
+  (count apps) ;;=> 700
+
+  (first apps)
+  ;;=> {"/home/bchoomnu/apps/clojurewerkz--elastisch" {:owner "clojurewerkz", :repo "elastisch"}}
+
+  (last apps)
+  ;;=> {"/home/bchoomnu/apps/xiaoxinghu--orgajs" {:owner "xiaoxinghu", :repo "orgajs"}}
+
+  ;; TODO: add the following command
+  ;; $git remote add upstream git@github.com:agilecreativity/<user>--<repo>.git
+  )
+
 (defn append-to-file
   "Uses spit to append to a file specified with its name as a string, or
    anything else that writer can take as an argument.  s is the string to
