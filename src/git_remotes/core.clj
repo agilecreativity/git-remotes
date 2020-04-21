@@ -34,6 +34,16 @@
                         (.endsWith (.toPath %) ".git/config")))
           (mapv #(.getAbsolutePath %))))))
 
+(comment
+
+  (git-config)
+  ;;=> ["/home/bchoomnuan/apps/git-remotes/./.git/config"]
+
+  (git-config "~/github")
+  ;;=> ["/home/bchoomnuan/github/b12n-sshj/.git/config" "/home/bchoomnuan/github/sshj/.git/config"]
+
+  )
+
 (defn git-url
   ([]
    (git-url ".git/config"))
@@ -44,14 +54,45 @@
                                {(remote-label key) (value "url")}))
                            config)))))
 
+(comment
+
+  (git-url) ;;=> ({"origin" "git@github.com:agilecreativity/git-remotes.git"})
+
+  (git-url "~/apps/AdGoji--aws-api/.git/config")
+  ;; If more than one remotes presented
+  #_
+  ({"origin" "git@github.com:agilecreativity/AdGoji--aws-api.git"}
+   {"upstream" "git@github.com:AdGoji/aws-api.git"})
+
+  )
+
 (defn- url-pairs
   [url]
   [(str/replace url #"/.git/config" "") (flatten (git-url url))])
+
+(comment
+
+  (url-pairs "~/apps/AdGoji--aws-api/.git/config")
+  #_
+  ["~/apps/AdGoji--aws-api"
+   ({"origin" "git@github.com:agilecreativity/AdGoji--aws-api.git"}
+    {"upstream" "git@github.com:AdGoji/aws-api.git"})]
+  )
 
 (defn extract-git-urls
   [base-dir]
   (let [configs (git-config base-dir)]
     (map url-pairs configs)))
+
+(comment
+
+  (extract-git-urls "~/github")
+  #_
+  (["/home/bchoomnuan/github/b12n-sshj"
+    ({"origin" "git@github.com:agilecreativity/b12n-sshj.git"})]
+   ["/home/bchoomnuan/github/sshj"
+    ({"origin" "git@github.com:hierynomus/sshj.git"})])
+  )
 
 (defn append-to-file
   "Uses spit to append to a file specified with its name as a string, or
